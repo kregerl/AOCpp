@@ -32,8 +32,8 @@ namespace Day6 {
         return -1;
     }
 
-    // 13 chars + the current = 14 total uniques in a row
     static void part2(std::string_view sv) {
+        // 13 chars + the current = 14 total uniques in a row
         auto result = part_impl(sv, 13);
         printf("Part2: %d\n", result);
     }
