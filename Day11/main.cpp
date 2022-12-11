@@ -3,6 +3,7 @@
 #include <fstream>
 #include <vector>
 #include <sstream>
+#include <algorithm>
 
 namespace Day11 {
     enum class Operation {
@@ -15,7 +16,7 @@ namespace Day11 {
         int id;
         std::vector<int> items;
         Operation op;
-        int op_value;
+        std::string op_value;
         int divisible_by;
         int if_true_id;
         int if_false_id;
@@ -52,9 +53,8 @@ namespace Day11 {
                 pos = chunk[2].find('*');
             }
             auto op = chunk[2].substr(pos, 1) == "+" ? Operation::Addition : Operation::Multiplication;
-            auto op_value = std::stoi(chunk[2].substr(pos + 2));
             monkey.op = op;
-            monkey.op_value = op_value;
+            monkey.op_value = chunk[2].substr(pos + 2);
 
             std::string by = "by";
             auto divisible_by = std::stoi(chunk[3].substr(chunk[3].find(by) + by.size() +  1));
@@ -72,12 +72,98 @@ namespace Day11 {
 
     static void part1(std::string_view sv) {
         std::vector<Monkey> monkeys = read_monkeys(sv);
+        std::vector<int> monkey_inspections(monkeys.size());
 
+        for (int i = 0; i < 20; i++) {
+            for (auto& monkey : monkeys) {
+                for (int j = 0; j < monkey.items.size(); j++) {
+                    auto item = monkey.items[j];
+                    int64_t worry_level;
+                    switch (monkey.op) {
+                        case Operation::Multiplication: {
+                            if (monkey.op_value == "old") {
+                                worry_level = item * item;
+                            } else {
+                                worry_level = std::stoi(monkey.op_value) * item;
+                            }
+                            break;
+                        }
+                        case Operation::Addition: {
+                            if (monkey.op_value == "old") {
+                                worry_level = item * item;
+                            } else {
+                                worry_level = std::stoi(monkey.op_value) + item;
+                            }
+                            break;
+                        }
+                    }
+                    worry_level /= 3;
+                    if (worry_level % monkey.divisible_by == 0) {
+                        monkeys.at(monkey.if_true_id).items.emplace_back(worry_level);
+                    } else {
+                        monkeys.at(monkey.if_false_id).items.emplace_back(worry_level);
+                    }
+                    monkey_inspections[monkey.id]++;
+                }
+                monkey.items.clear();
+            }
+        }
+        int result = 0;
+        auto max = std::max_element(monkey_inspections.begin(), monkey_inspections.end());
+        result = *max;
+        monkey_inspections.erase(max);
+        auto max2 = std::max_element(monkey_inspections.begin(), monkey_inspections.end());
 
+        result *= *max2;
+        printf("Part1: %d\n", result);
+    }
+
+    static void part2(std::string_view sv) {
+        std::vector<Monkey> monkeys = read_monkeys(sv);
+        std::vector<int> monkey_inspections(monkeys.size());
+
+        for (int i = 0; i < 20; i++) {
+            for (auto& monkey : monkeys) {
+                for (int j = 0; j < monkey.items.size(); j++) {
+                    auto item = monkey.items[j];
+                    int64_t worry_level;
+                    switch (monkey.op) {
+                        case Operation::Multiplication: {
+                            if (monkey.op_value == "old") {
+                                worry_level = item * item;
+                            } else {
+                                worry_level = std::stoi(monkey.op_value) * item;
+                            }
+                            break;
+                        }
+                        case Operation::Addition: {
+                            worry_level = std::stoi(monkey.op_value) + item;
+                            break;
+                        }
+                    }
+                    if (worry_level % monkey.divisible_by == 0) {
+                        monkeys.at(monkey.if_true_id).items.emplace_back(worry_level);
+                    } else {
+                        monkeys.at(monkey.if_false_id).items.emplace_back(worry_level);
+                    }
+                    monkey_inspections[monkey.id]++;
+                }
+                monkey.items.clear();
+            }
+        }
+        int result = 0;
+        auto max = std::max_element(monkey_inspections.begin(), monkey_inspections.end());
+        result = *max;
+        monkey_inspections.erase(max);
+        auto max2 = std::max_element(monkey_inspections.begin(), monkey_inspections.end());
+
+        result *= *max2;
+        printf("Part2: %d\n", result);
     }
 }
 
 
 int main() {
-    Day11::part1("Example.txt");
+    Day11::part1("Input1.txt");
+    Day11::part2("Example.txt");
 }

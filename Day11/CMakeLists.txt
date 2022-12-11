@@ -3,7 +3,7 @@ project(Day11)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(Assets Example.txt)
+set(Assets Example.txt Input1.txt)
 file(COPY ${Assets} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 add_executable(Day11 main.cpp)
